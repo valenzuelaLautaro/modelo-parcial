@@ -3,6 +3,7 @@
   <section class="src-components-formulario jumbotron mt-1">
     <vue-form :state="formState" @submit.prevent="enviar()">
 
+      <!-- Input de nombre -->
       <validate tag="div">
         <label for="nombre">Nombre</label>
         <input type="text"
@@ -38,13 +39,15 @@
         </field-messages>
       </validate>
       <br>
+
+      <!-- Input de dni -->
       <validate tag="div">
         <label for="dni">Dni</label>
         <input type="number"
          id="dni" 
          name="dni" 
          class="form-control" 
-         v-model.trim="formData.dni"
+         v-model="formData.dni"
          autocomplete="off"
          required
          :minlength= "minDni"
@@ -72,25 +75,30 @@
         </field-messages>
       </validate>
       <br>
+
+      <!-- Input del monto -->
       <validate tag="div">
         <label for="monto">Monto</label>
         <input type="number"
          id="monto" 
          name="monto" 
          class="form-control"
-         v-model.trim="formData.monto" 
+         v-model.number="formData.monto" 
          autocomplete="off"
          readonly
+         :style="{  }"
         >
       </validate>
       <br>
+
+      <!-- Input de pago -->
       <validate tag="div">
         <label for="pago">Pago</label>
         <input type="number"
          id="pago" 
          name="pago" 
          class="form-control" 
-         v-model.trim="formData.pago"
+         v-model.number="formData.pago"
          autocomplete="off"
          required
          :min="minPago"
@@ -119,22 +127,27 @@
 
     </vue-form>
 
-    <table v-if="mostrar" class="table">
-      <tr>
-        <th>Nombre</th>
-        <th>Dni</th>
-        <th>Monto a pagar</th>
-        <th>Pago realizado</th>
-        <th>Deuda</th>
-      </tr>
-      <tr>
-        <th>{{formData.nombre}}</th>
-        <th>{{formData.dni}}</th>
-        <th>${{formData.monto}}</th>
-        <th>${{formData.pago}}</th>
-        <th :style="{'background-color':calcularDeuda()==0 ? 'green':'red'}">${{calcularDeuda()}}</th>
-      </tr>
-    </table>
+    <div v-if="mostrar" class="table-responsive bg-dark">
+      <h3 class="text-center">FACTURA {{pagos.length}}</h3>
+      <table class="table">
+        <tr>
+          <th>Nombre</th>
+          <th>Dni</th>
+          <th>Monto a pagar</th>
+          <th>Pago realizado</th>
+          <th>Fecha</th>
+          <th>Deuda</th>
+        </tr>
+        <tr>
+          <th>{{ formData.nombre }}</th>
+          <th>{{ formData.dni }}</th>
+          <th>${{ formData.monto }}</th>
+          <th>${{ formData.pago }}</th>
+          <th>{{ formData.fecha }}</th>
+          <th :style="{'background-color':calcularDeuda()==0 ? 'green':'red'}">${{ calcularDeuda() }}</th>
+        </tr>
+      </table>
+    </div>
   </section>
 
 </template>
@@ -156,7 +169,8 @@
         minDni: 7,
         maxDni: 8,
         minPago: 1,
-        mostrar: false
+        mostrar: false,
+        pagos: []
       }
     },
     methods: {
@@ -166,14 +180,19 @@
           dni: null,
           monto: 10000,
           pago: 0,
+          fecha: null
         }
       },
       calcularDeuda(){
         return this.formData.monto - this.formData.pago
       },
       enviar(){
-        this.mostrar = true;
-        console.log(this.deuda)
+        this.mostrar = true
+        let hoy = new Date
+        this.formData.fecha = hoy.toLocaleDateString()
+        
+        this.pagos.push(this.formData)
+        console.log(this.pagos)
       },
     },
     computed: {
@@ -187,5 +206,8 @@
 <style lang="css">
   .src-components-formulario {
 
+  }
+  input{
+    border: #000 !important;
   }
 </style>
